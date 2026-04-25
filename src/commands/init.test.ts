@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { type Prompter, runInit } from './init';
 import { load } from '../index';
-import { readenvsafeFile } from '../envsafe-file';
+import { readhidevarsFile } from '../hidevars-file';
 
 let tmpDir: string;
 let projectDir: string;
@@ -21,7 +21,7 @@ function makePrompter(overrides: Partial<Prompter>): Prompter {
 }
 
 beforeEach(async () => {
-  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'envsafe-init-'));
+  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'hidevars-init-'));
   projectDir = path.join(tmpDir, 'project');
   profilesFile = path.join(tmpDir, 'profiles.json');
   await fs.mkdir(projectDir, { recursive: true });
@@ -31,7 +31,7 @@ afterEach(async () => {
 });
 
 describe('runInit (fresh project, no .env)', () => {
-  it('creates profile, .envsafe pointer, .gitignore, and .env template', async () => {
+  it('creates profile, .hidevars pointer, .gitignore, and .env template', async () => {
     const result = await runInit({
       cwd: projectDir,
       profilesFile,
@@ -43,14 +43,14 @@ describe('runInit (fresh project, no .env)', () => {
       envCreated: true,
       envMigrated: 0,
     });
-    expect(result.gitignoreAdded).toEqual(['.env', '.envsafe']);
+    expect(result.gitignoreAdded).toEqual(['.env', '.hidevars']);
 
-    expect((await readenvsafeFile(projectDir))?.profile).toBe('default');
+    expect((await readhidevarsFile(projectDir))?.profile).toBe('default');
     const envContent = await fs.readFile(path.join(projectDir, '.env'), 'utf8');
     expect(envContent).toContain('# Environment Variables');
     const gi = await fs.readFile(path.join(projectDir, '.gitignore'), 'utf8');
     expect(gi).toContain('.env');
-    expect(gi).toContain('.envsafe');
+    expect(gi).toContain('.hidevars');
   });
 });
 
@@ -68,8 +68,8 @@ describe('runInit (migrate existing .env)', () => {
     expect(result.envMigrated).toBe(2);
 
     const envContent = await fs.readFile(path.join(projectDir, '.env'), 'utf8');
-    expect(envContent).toContain("FOO=envsafe('");
-    expect(envContent).toContain("API_KEY=envsafe('");
+    expect(envContent).toContain("FOO=hidevars('");
+    expect(envContent).toContain("API_KEY=hidevars('");
     expect(envContent).toContain('EMPTY=');
     expect(envContent).toContain('# header');
 
@@ -84,13 +84,13 @@ describe('runInit (migrate existing .env)', () => {
 });
 
 describe('runInit (re-init / switch profile)', () => {
-  it('prompts to switch and updates the .envsafe pointer', async () => {
+  it('prompts to switch and updates the .hidevars pointer', async () => {
     await runInit({
       cwd: projectDir,
       profilesFile,
       prompter: makePrompter({ newProfileName: async () => 'first' }),
     });
-    expect((await readenvsafeFile(projectDir))?.profile).toBe('first');
+    expect((await readhidevarsFile(projectDir))?.profile).toBe('first');
 
     await runInit({
       cwd: projectDir,
@@ -101,7 +101,7 @@ describe('runInit (re-init / switch profile)', () => {
         newProfileName: async () => 'second',
       }),
     });
-    expect((await readenvsafeFile(projectDir))?.profile).toBe('second');
+    expect((await readhidevarsFile(projectDir))?.profile).toBe('second');
   });
 
   it('keeps the existing profile when user declines to switch', async () => {

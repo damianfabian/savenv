@@ -10,13 +10,13 @@ describe('paths.profilesDir', () => {
         env: { XDG_CONFIG_HOME: '/custom/xdg' },
         homedir: () => '/home/u',
       }),
-    ).toBe(path.join('/custom/xdg', 'envsafe'));
+    ).toBe(path.join('/custom/xdg', 'hidevars'));
   });
 
   it('falls back to ~/.config on POSIX without XDG_CONFIG_HOME', () => {
     expect(
       profilesDir({ platform: 'linux', env: {}, homedir: () => '/home/u' }),
-    ).toBe(path.join('/home/u', '.config', 'envsafe'));
+    ).toBe(path.join('/home/u', '.config', 'hidevars'));
   });
 
   it('uses APPDATA on Windows when set', () => {
@@ -26,7 +26,7 @@ describe('paths.profilesDir', () => {
         env: { APPDATA: 'C:\\Users\\u\\AppData\\Roaming' },
         homedir: () => 'C:\\Users\\u',
       }),
-    ).toBe(path.join('C:\\Users\\u\\AppData\\Roaming', 'envsafe'));
+    ).toBe(path.join('C:\\Users\\u\\AppData\\Roaming', 'hidevars'));
   });
 
   it('falls back to %USERPROFILE%/AppData/Roaming on Windows', () => {
@@ -36,13 +36,13 @@ describe('paths.profilesDir', () => {
         env: {},
         homedir: () => 'C:\\Users\\u',
       }),
-    ).toBe(path.join('C:\\Users\\u', 'AppData', 'Roaming', 'envsafe'));
+    ).toBe(path.join('C:\\Users\\u', 'AppData', 'Roaming', 'hidevars'));
   });
 
   it('treats empty XDG_CONFIG_HOME as unset', () => {
     expect(
       profilesDir({ platform: 'darwin', env: { XDG_CONFIG_HOME: '' }, homedir: () => '/Users/u' }),
-    ).toBe(path.join('/Users/u', '.config', 'envsafe'));
+    ).toBe(path.join('/Users/u', '.config', 'hidevars'));
   });
 });
 
@@ -50,6 +50,6 @@ describe('paths.profilesFile', () => {
   it('appends profiles.json to the directory', () => {
     expect(
       profilesFile({ platform: 'linux', env: {}, homedir: () => '/home/u' }),
-    ).toBe(path.join('/home/u', '.config', 'envsafe', 'profiles.json'));
+    ).toBe(path.join('/home/u', '.config', 'hidevars', 'profiles.json'));
   });
 });

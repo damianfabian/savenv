@@ -1,12 +1,12 @@
 {
-  "name": "envsafe",
+  "name": "hidevars",
   "version": "0.0.0-development",
   "description": "Manage project environment variables with at-rest encryption of secret values.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "repository": { "type": "git", "url": "https://github.com/damianfabian/envsafe.git" },
+  "repository": { "type": "git", "url": "https://github.com/damianfabian/hidevars.git" },
   "bin": {
-    "envsafe": "dist/cli.js"
+    "hidevars": "dist/cli.js"
   },
   "files": [
     "dist"

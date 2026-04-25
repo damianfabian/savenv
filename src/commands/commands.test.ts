@@ -12,7 +12,7 @@ let tmpDir: string;
 let projectDir: string;
 let profilesFile: string;
 
-const baseEnv = { envsafe_PROFILE: undefined } as NodeJS.ProcessEnv;
+const baseEnv = { hidevars_PROFILE: undefined } as NodeJS.ProcessEnv;
 
 const prompter: Prompter = {
   pickOrCreateProfile: async () => ({ kind: 'create' }),
@@ -26,7 +26,7 @@ async function bootstrap(): Promise<void> {
 }
 
 beforeEach(async () => {
-  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'envsafe-cmds-'));
+  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'hidevars-cmds-'));
   projectDir = path.join(tmpDir, 'project');
   profilesFile = path.join(tmpDir, 'profiles.json');
   await fs.mkdir(projectDir, { recursive: true });
@@ -61,7 +61,7 @@ describe('runSet', () => {
     await bootstrap();
     await runSet({ spec: 'API_KEY', value: 's3cret', cwd: projectDir, profilesFile, env: baseEnv });
     const env = await fs.readFile(path.join(projectDir, '.env'), 'utf8');
-    expect(env).toMatch(/API_KEY=envsafe\('/);
+    expect(env).toMatch(/API_KEY=hidevars\('/);
     const value = await runGet({ name: 'API_KEY', cwd: projectDir, profilesFile, env: baseEnv });
     expect(value).toBe('s3cret');
   });
@@ -71,7 +71,7 @@ describe('runSet', () => {
     await runSet({ spec: 'PUBLIC:o', value: 'visible', cwd: projectDir, profilesFile, env: baseEnv });
     const env = await fs.readFile(path.join(projectDir, '.env'), 'utf8');
     expect(env).toContain('PUBLIC=visible');
-    expect(env).not.toMatch(/PUBLIC=envsafe/);
+    expect(env).not.toMatch(/PUBLIC=hidevars/);
   });
 
   it('updates an existing variable in place (re-encrypts, switches mode)', async () => {
@@ -136,7 +136,7 @@ describe('runList', () => {
     await bootstrap();
     await runSet({ spec: 'A', value: 'x', cwd: projectDir, profilesFile, env: baseEnv });
     // Point the pointer at a non-existent profile.
-    await fs.writeFile(path.join(projectDir, '.envsafe'), 'profile=missing\n');
+    await fs.writeFile(path.join(projectDir, '.hidevars'), 'profile=missing\n');
     const items = await runList({ cwd: projectDir, profilesFile, env: baseEnv });
     expect(items[0]?.display).toBe('<unavailable>');
     expect(items[0]?.error).toBeDefined();
@@ -145,7 +145,7 @@ describe('runList', () => {
   it('still lists plain entries even when session fails', async () => {
     await bootstrap();
     await runSet({ spec: 'PUB:o', value: 'visible', cwd: projectDir, profilesFile, env: baseEnv });
-    await fs.writeFile(path.join(projectDir, '.envsafe'), 'profile=missing\n');
+    await fs.writeFile(path.join(projectDir, '.hidevars'), 'profile=missing\n');
     const items = await runList({ cwd: projectDir, profilesFile, env: baseEnv });
     expect(items.find((i) => i.name === 'PUB')?.display).toBe('visible');
   });

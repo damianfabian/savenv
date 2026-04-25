@@ -1,16 +1,16 @@
-# EnvSafe
+# hidevars
 
 Manage project environment variables with at-rest encryption of secret values.
 Drop-in replacement for `dotenv`.
 
-Secrets in `.env` are stored as opaque ciphertext (`API_KEY=envsafe('…')`) so
+Secrets in `.env` are stored as opaque ciphertext (`API_KEY=hidevars('…')`) so
 they cannot be read by AI assistants indexing the workspace, screen-sharing,
 or accidental `cat .env`.
 
 ## Install
 
 ```bash
-npm install envsafe
+npm install hidevars
 ```
 
 Requires Node.js ≥ 20.
@@ -18,30 +18,30 @@ Requires Node.js ≥ 20.
 ## Quick start
 
 ```bash
-npx envsafe init                       # pick/create a profile, scaffold .env, update .gitignore
-npx envsafe set API_KEY my-s3cret      # encrypted (mode m) by default
-npx envsafe set PUBLIC_URL:o https://… # plaintext entry
-npx envsafe list                       # masked listing
+npx hidevars init                       # pick/create a profile, scaffold .env, update .gitignore
+npx hidevars set API_KEY my-s3cret      # encrypted (mode m) by default
+npx hidevars set PUBLIC_URL:o https://… # plaintext entry
+npx hidevars list                       # masked listing
 ```
 
 In your application:
 
 ```js
-const envsafe = require('envsafe');
+const hidevars = require('hidevars');
 
 async function main() {
-  await envsafe.load();        // populates process.env with plain + decrypted values
+  await hidevars.load();        // populates process.env with plain + decrypted values
   console.log(process.env.API_KEY);
 }
 ```
 
 ## CLI
 
-### `envsafe init`
+### `hidevars init`
 
 Interactive. Picks an existing profile or creates a new one (prompting for
-name + passphrase). Writes the project-local `.envsafe` pointer, ensures
-`.env` and `.envsafe` are present in `.gitignore`, and either creates a fresh
+name + passphrase). Writes the project-local `.hidevars` pointer, ensures
+`.env` and `.hidevars` are present in `.gitignore`, and either creates a fresh
 `.env` template or migrates an existing `.env` by encrypting every value
 (default display mode `m`). On migration, a `.env.bak` is written first and
 removed on success; on failure the original is restored.
@@ -49,7 +49,7 @@ removed on success; on failure the original is restored.
 Re-running `init` in a project that is already configured offers to switch
 profiles.
 
-### `envsafe set NAME[:OPT] VALUE`
+### `hidevars set NAME[:OPT] VALUE`
 
 `OPT` is one of:
 
@@ -62,39 +62,39 @@ profiles.
 If `NAME` doesn't exist in `.env`, the line is appended; otherwise it is
 replaced (the mode may change).
 
-### `envsafe get NAME`
+### `hidevars get NAME`
 
 Prints the **decrypted plaintext** value to stdout. Suitable for scripting:
 
 ```bash
-export API_KEY=$(envsafe get API_KEY)
+export API_KEY=$(hidevars get API_KEY)
 ```
 
 Exits non-zero if the variable is unknown or decryption fails.
 
-### `envsafe del NAME`
+### `hidevars del NAME`
 
 Removes `NAME` from `.env`.
 
-### `envsafe list`
+### `hidevars list`
 
 Prints every variable, rendered per its display mode.
 
 ## Library API
 
 ```ts
-import { load, type LoadOptions, type LoadResult } from 'envsafe';
+import { load, type LoadOptions, type LoadResult } from 'hidevars';
 
 await load({
   cwd?: string,                  // defaults to process.cwd()
-  profile?: string,              // override the .envsafe pointer
+  profile?: string,              // override the .hidevars pointer
   env?: NodeJS.ProcessEnv,       // target env (default process.env)
   warn?: (msg: string) => void,  // default writes to stderr
 }): Promise<{ loaded: string[]; failed: string[] }>
 ```
 
 `load()` reads `.env`, passes through plain entries, and decrypts
-`envsafe('…')` entries using the active profile's key. On a per-variable
+`hidevars('…')` entries using the active profile's key. On a per-variable
 decryption failure it emits one warning and leaves the variable undefined,
 continuing with the rest. If the profile cannot be resolved at all, plain
 entries are still loaded.
@@ -105,12 +105,12 @@ entries are still loaded.
 
 | File                                      | Where                | Role                                                  | Committed? |
 |-------------------------------------------|----------------------|-------------------------------------------------------|------------|
-| `.env`                                    | project root         | variable storage (plain or `envsafe('<base64>')`)      | **no**     |
-| `.envsafe`                                 | project root         | pointer: `profile=<name>`                             | **no**     |
-| `~/.config/envsafe/profiles.json`          | per user             | passphrases, salts, KDF params (mode `0600`)          | **no**     |
-| `%APPDATA%\envsafe\profiles.json`          | per user (Windows)   | same as above                                         | **no**     |
+| `.env`                                    | project root         | variable storage (plain or `hidevars('<base64>')`)      | **no**     |
+| `.hidevars`                                 | project root         | pointer: `profile=<name>`                             | **no**     |
+| `~/.config/hidevars/profiles.json`          | per user             | passphrases, salts, KDF params (mode `0600`)          | **no**     |
+| `%APPDATA%\hidevars\profiles.json`          | per user (Windows)   | same as above                                         | **no**     |
 
-Profile selection: `envsafe_PROFILE` env var overrides the `.envsafe` file.
+Profile selection: `hidevars_PROFILE` env var overrides the `.hidevars` file.
 
 ### Encryption
 
@@ -123,7 +123,7 @@ Profile selection: `envsafe_PROFILE` env var overrides the `.envsafe` file.
 
 Modes `p` and `m` produce encrypted entries; the mode byte is embedded in
 the payload, so re-running `set` swaps the rendering without re-keying.
-Mode `o` stores the value as plaintext (no `envsafe(...)` wrapper).
+Mode `o` stores the value as plaintext (no `hidevars(...)` wrapper).
 
 ## Security model
 
@@ -133,7 +133,7 @@ Mode `o` stores the value as plaintext (no `envsafe(...)` wrapper).
   directory (the passphrase lives in `profiles.json` there), memory dumps
   of running processes, malicious processes running as the same OS user.
 
-`envsafe` is single-user / per-machine. There is no v1 mechanism for sharing
+`hidevars` is single-user / per-machine. There is no v1 mechanism for sharing
 secrets across a team; each developer initializes their own profile.
 
 ## Contributing
@@ -142,7 +142,7 @@ secrets across a team; each developer initializes their own profile.
 
 ```bash
 git clone <repo-url>
-cd envsafe
+cd hidevars
 npm install        # also installs the Husky commit-msg hook
 npm test
 ```
@@ -164,7 +164,7 @@ specification. A `commit-msg` hook (Husky + commitlint with
 Examples:
 
 ```
-feat(cli): add envsafe rotate command
+feat(cli): add hidevars rotate command
 fix(crypto): tolerate trailing whitespace in passphrase
 feat(api)!: rename load() option `profile` to `profileName`
 ```

@@ -3,10 +3,10 @@ import path from 'node:path';
 import {
   PROJECT_ENV_FILE,
   PROJECT_GITIGNORE_FILE,
-  PROJECT_envsafe_FILE,
+  PROJECT_hidevars_FILE,
 } from './paths';
 
-const REQUIRED_ENTRIES = [PROJECT_ENV_FILE, PROJECT_envsafe_FILE];
+const REQUIRED_ENTRIES = [PROJECT_ENV_FILE, PROJECT_hidevars_FILE];
 
 export async function ensureGitignore(projectDir: string): Promise<{ added: string[] }> {
   const filePath = path.join(projectDir, PROJECT_GITIGNORE_FILE);
@@ -30,7 +30,7 @@ export async function ensureGitignore(projectDir: string): Promise<{ added: stri
   const needsLeadingNewline = existing.length > 0 && !existing.endsWith('\n');
   const block = `${needsLeadingNewline ? '\n' : ''}${
     existing.length === 0 ? '' : '\n'
-  }# Added by envsafe\n${missing.join('\n')}\n`;
+  }# Added by hidevars\n${missing.join('\n')}\n`;
 
   await fs.writeFile(filePath, existing + block, 'utf8');
   return { added: missing };

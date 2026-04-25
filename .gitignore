@@ -3,7 +3,7 @@ dist/
 coverage/
 
 .env
-.envsafe
+.hidevars
 
 .DS_Store
 *.log

@@ -5,7 +5,7 @@ import path from 'node:path';
 import { load } from './index';
 import { encryptValue, deriveKey } from './crypto';
 import { createProfile } from './profile-store';
-import { writeenvsafeFile } from './envsafe-file';
+import { writehidevarsFile } from './hidevars-file';
 
 let tmpDir: string;
 let projectDir: string;
@@ -13,7 +13,7 @@ let profilesPath: string;
 
 async function bootstrap(profileName: string, passphrase: string): Promise<{ key: Buffer }> {
   await createProfile(profileName, passphrase, { filePath: profilesPath });
-  await writeenvsafeFile(projectDir, { profile: profileName });
+  await writehidevarsFile(projectDir, { profile: profileName });
   // Mirror the salt the store generated so we can encrypt fixtures.
   const file = JSON.parse(await fs.readFile(profilesPath, 'utf8')) as {
     profiles: Record<string, { salt: string }>;
@@ -24,7 +24,7 @@ async function bootstrap(profileName: string, passphrase: string): Promise<{ key
 }
 
 beforeEach(async () => {
-  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'envsafe-load-'));
+  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'hidevars-load-'));
   projectDir = path.join(tmpDir, 'project');
   profilesPath = path.join(tmpDir, 'profiles.json');
   await fs.mkdir(projectDir, { recursive: true });
@@ -33,7 +33,7 @@ afterEach(async () => {
   await fs.rm(tmpDir, { recursive: true, force: true });
 });
 
-describe('envsafe.load', () => {
+describe('hidevars.load', () => {
   it('returns empty result when .env is missing', async () => {
     const target: NodeJS.ProcessEnv = {};
     const result = await load({ cwd: projectDir, env: target, warn: () => {} });
@@ -52,7 +52,7 @@ describe('envsafe.load', () => {
   it('decrypts encrypted entries using the active profile', async () => {
     const { key } = await bootstrap('default', 'pp');
     const payload = encryptValue('s3cret', key, 'm');
-    await fs.writeFile(path.join(projectDir, '.env'), `PLAIN=ok\nAPI=envsafe('${payload}')\n`);
+    await fs.writeFile(path.join(projectDir, '.env'), `PLAIN=ok\nAPI=hidevars('${payload}')\n`);
 
     const target: NodeJS.ProcessEnv = {};
     const result = await load({
@@ -72,7 +72,7 @@ describe('envsafe.load', () => {
     const good = encryptValue('hello', key, 'm');
     await fs.writeFile(
       path.join(projectDir, '.env'),
-      `OK=envsafe('${good}')\nBAD=envsafe('not-real-base64!@#')\n`,
+      `OK=hidevars('${good}')\nBAD=hidevars('not-real-base64!@#')\n`,
     );
     const warnings: string[] = [];
     const target: NodeJS.ProcessEnv = {};
@@ -89,14 +89,14 @@ describe('envsafe.load', () => {
     expect(warnings.some((w) => /BAD/.test(w))).toBe(true);
   });
 
-  it('honours envsafe_PROFILE env override', async () => {
+  it('honours hidevars_PROFILE env override', async () => {
     const { key } = await bootstrap('work', 'pp');
     const payload = encryptValue('value-from-work', key, 'm');
     // Pointer file points at "default" but env var redirects to "work".
-    await writeenvsafeFile(projectDir, { profile: 'default' });
-    await fs.writeFile(path.join(projectDir, '.env'), `K=envsafe('${payload}')\n`);
+    await writehidevarsFile(projectDir, { profile: 'default' });
+    await fs.writeFile(path.join(projectDir, '.env'), `K=hidevars('${payload}')\n`);
 
-    const target: NodeJS.ProcessEnv = { envsafe_PROFILE: 'work' };
+    const target: NodeJS.ProcessEnv = { hidevars_PROFILE: 'work' };
     const result = await load({
       cwd: projectDir,
       env: target,
@@ -108,7 +108,7 @@ describe('envsafe.load', () => {
   });
 
   it('warns and skips encrypted entries when profile cannot be resolved', async () => {
-    await fs.writeFile(path.join(projectDir, '.env'), "API=envsafe('garbage')\n");
+    await fs.writeFile(path.join(projectDir, '.env'), "API=hidevars('garbage')\n");
     const warnings: string[] = [];
     const target: NodeJS.ProcessEnv = {};
     const result = await load({
@@ -118,7 +118,7 @@ describe('envsafe.load', () => {
     });
     expect(result.loaded).toEqual([]);
     expect(result.failed).toEqual(['API']);
-    expect(warnings.some((w) => /envsafe init/.test(w) || /encrypted/.test(w))).toBe(true);
+    expect(warnings.some((w) => /hidevars init/.test(w) || /encrypted/.test(w))).toBe(true);
     expect(target.API).toBeUndefined();
   });
 });

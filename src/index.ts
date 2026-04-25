@@ -1,9 +1,9 @@
 /**
- * envsafe — library entry point.
+ * hidevars — library entry point.
  *
  * Public API:
- *   await require('envsafe').load()
- *   await require('envsafe').load({ profile })
+ *   await require('hidevars').load()
+ *   await require('hidevars').load({ profile })
  */
 
 import path from 'node:path';
@@ -49,7 +49,7 @@ export async function load(options: LoadOptions = {}): Promise<LoadResult> {
       });
       key = session.key;
     } catch (err) {
-      warn(`envsafe: ${describeError(err)}; encrypted variables will be skipped`);
+      warn(`hidevars: ${describeError(err)}; encrypted variables will be skipped`);
     }
   }
 
@@ -58,7 +58,7 @@ export async function load(options: LoadOptions = {}): Promise<LoadResult> {
       assignEntry(entry, key, target);
       loaded.push(entry.name);
     } catch (err) {
-      warn(`envsafe: failed to load "${entry.name}": ${describeError(err)}`);
+      warn(`hidevars: failed to load "${entry.name}": ${describeError(err)}`);
       failed.push(entry.name);
     }
   }
