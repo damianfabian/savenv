@@ -23,7 +23,7 @@ describe('env-file.parseEnv', () => {
   });
 
   it('parses encrypted entries', () => {
-    const lines = parseEnv("API_KEY=savenv('AbCdEf==')");
+    const lines = parseEnv("API_KEY=envsafe('AbCdEf==')");
     expect(lines[0]).toMatchObject({
       type: 'entry',
       kind: 'encrypted',
@@ -67,7 +67,7 @@ describe('env-file.parseEnv', () => {
 
 describe('env-file.serializeEnv', () => {
   it('round-trips structure for plain + encrypted + comments', () => {
-    const src = "# top\nFOO=bar\nAPI_KEY=savenv('XYZ')\n";
+    const src = "# top\nFOO=bar\nAPI_KEY=envsafe('XYZ')\n";
     const out = serializeEnv(parseEnv(src));
     expect(out).toBe(src);
   });
@@ -91,7 +91,7 @@ describe('env-file mutation helpers', () => {
 
   it('setEncryptedEntry replaces a plain entry with encrypted form', () => {
     const after = setEncryptedEntry(parseEnv('A=1'), 'A', 'CIPHER');
-    expect(serializeEnv(after)).toBe("A=savenv('CIPHER')\n");
+    expect(serializeEnv(after)).toBe("A=envsafe('CIPHER')\n");
   });
 
   it('deleteEntry removes the matching line', () => {
@@ -118,7 +118,7 @@ describe('env-file file IO', () => {
   let tmpDir: string;
   let envPath: string;
   beforeEach(async () => {
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'savenv-env-'));
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'envsafe-env-'));
     envPath = path.join(tmpDir, '.env');
   });
   afterEach(async () => {
@@ -130,7 +130,7 @@ describe('env-file file IO', () => {
   });
 
   it('round-trips through writeEnvFile/readEnvFile', async () => {
-    const lines = parseEnv("# header\nFOO=bar\nAPI_KEY=savenv('CIPHER')\n");
+    const lines = parseEnv("# header\nFOO=bar\nAPI_KEY=envsafe('CIPHER')\n");
     await writeEnvFile(envPath, lines);
     const back = await readEnvFile(envPath);
     expect(serializeEnv(back)).toBe(serializeEnv(lines));

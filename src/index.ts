@@ -1,9 +1,9 @@
 /**
- * savenv — library entry point.
+ * envsafe — library entry point.
  *
  * Public API:
- *   await require('savenv').load()
- *   await require('savenv').load({ profile })
+ *   await require('envsafe').load()
+ *   await require('envsafe').load({ profile })
  */
 
 import path from 'node:path';
@@ -49,7 +49,7 @@ export async function load(options: LoadOptions = {}): Promise<LoadResult> {
       });
       key = session.key;
     } catch (err) {
-      warn(`savenv: ${describeError(err)}; encrypted variables will be skipped`);
+      warn(`envsafe: ${describeError(err)}; encrypted variables will be skipped`);
     }
   }
 
@@ -58,7 +58,7 @@ export async function load(options: LoadOptions = {}): Promise<LoadResult> {
       assignEntry(entry, key, target);
       loaded.push(entry.name);
     } catch (err) {
-      warn(`savenv: failed to load "${entry.name}": ${describeError(err)}`);
+      warn(`envsafe: failed to load "${entry.name}": ${describeError(err)}`);
       failed.push(entry.name);
     }
   }

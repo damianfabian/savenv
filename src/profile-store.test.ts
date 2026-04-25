@@ -15,7 +15,7 @@ let tmpDir: string;
 let filePath: string;
 
 beforeEach(async () => {
-  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'savenv-profiles-'));
+  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'envsafe-profiles-'));
   filePath = path.join(tmpDir, 'nested', 'profiles.json');
 });
 

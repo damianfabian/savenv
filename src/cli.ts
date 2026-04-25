@@ -9,13 +9,13 @@ import { runSet } from './commands/set';
 const program = new Command();
 
 program
-  .name('savenv')
+  .name('envsafe')
   .description('Manage project environment variables with at-rest encryption.')
   .version('0.1.0');
 
 program
   .command('init')
-  .description('Initialize savenv in the current project.')
+  .description('Initialize envsafe in the current project.')
   .action(async () => {
     const prompter = await buildPrompter();
     const result = await runInit({ prompter, log: write });
@@ -58,7 +58,7 @@ program
 
 program.parseAsync(process.argv).catch((err: unknown) => {
   const message = err instanceof Error ? err.message : String(err);
-  process.stderr.write(`savenv: ${message}\n`);
+  process.stderr.write(`envsafe: ${message}\n`);
   process.exit(1);
 });
 

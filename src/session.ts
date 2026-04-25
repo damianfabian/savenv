@@ -1,6 +1,6 @@
 import { deriveKey } from './crypto';
 import { getProfile, type ProfileEntry } from './profile-store';
-import { readSavenvFile } from './savenv-file';
+import { readenvsafeFile } from './envsafe-file';
 
 export interface SessionOptions {
   cwd?: string;
@@ -19,12 +19,12 @@ export interface Session {
 export async function resolveProfileName(opts: SessionOptions = {}): Promise<string> {
   const env = opts.env ?? process.env;
   if (opts.profile && opts.profile.length > 0) return opts.profile;
-  const fromEnv = env.SAVENV_PROFILE;
+  const fromEnv = env.envsafe_PROFILE;
   if (fromEnv && fromEnv.length > 0) return fromEnv;
   const cwd = opts.cwd ?? process.cwd();
-  const pointer = await readSavenvFile(cwd);
+  const pointer = await readenvsafeFile(cwd);
   if (!pointer) {
-    throw new Error('no .savenv file found in project; run `savenv init` first');
+    throw new Error('no .envsafe file found in project; run `envsafe init` first');
   }
   return pointer.profile;
 }

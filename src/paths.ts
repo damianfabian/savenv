@@ -1,7 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 
-const APP_DIR_NAME = 'savenv';
+const APP_DIR_NAME = 'envsafe';
 const PROFILES_FILE_NAME = 'profiles.json';
 
 export interface PathsEnv {
@@ -36,5 +36,5 @@ export function profilesFile(deps: PathsEnv = {}): string {
 
 export const PROJECT_ENV_FILE = '.env';
 export const PROJECT_ENV_BACKUP_FILE = '.env.bak';
-export const PROJECT_SAVENV_FILE = '.savenv';
+export const PROJECT_envsafe_FILE = '.envsafe';
 export const PROJECT_GITIGNORE_FILE = '.gitignore';

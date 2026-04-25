@@ -5,7 +5,7 @@ import path from 'node:path';
 import { load } from './index';
 import { encryptValue, deriveKey } from './crypto';
 import { createProfile } from './profile-store';
-import { writeSavenvFile } from './savenv-file';
+import { writeenvsafeFile } from './envsafe-file';
 
 let tmpDir: string;
 let projectDir: string;
@@ -13,7 +13,7 @@ let profilesPath: string;
 
 async function bootstrap(profileName: string, passphrase: string): Promise<{ key: Buffer }> {
   await createProfile(profileName, passphrase, { filePath: profilesPath });
-  await writeSavenvFile(projectDir, { profile: profileName });
+  await writeenvsafeFile(projectDir, { profile: profileName });
   // Mirror the salt the store generated so we can encrypt fixtures.
   const file = JSON.parse(await fs.readFile(profilesPath, 'utf8')) as {
     profiles: Record<string, { salt: string }>;
@@ -24,7 +24,7 @@ async function bootstrap(profileName: string, passphrase: string): Promise<{ key
 }
 
 beforeEach(async () => {
-  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'savenv-load-'));
+  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'envsafe-load-'));
   projectDir = path.join(tmpDir, 'project');
   profilesPath = path.join(tmpDir, 'profiles.json');
   await fs.mkdir(projectDir, { recursive: true });
@@ -33,7 +33,7 @@ afterEach(async () => {
   await fs.rm(tmpDir, { recursive: true, force: true });
 });
 
-describe('savenv.load', () => {
+describe('envsafe.load', () => {
   it('returns empty result when .env is missing', async () => {
     const target: NodeJS.ProcessEnv = {};
     const result = await load({ cwd: projectDir, env: target, warn: () => {} });
@@ -52,7 +52,7 @@ describe('savenv.load', () => {
   it('decrypts encrypted entries using the active profile', async () => {
     const { key } = await bootstrap('default', 'pp');
     const payload = encryptValue('s3cret', key, 'm');
-    await fs.writeFile(path.join(projectDir, '.env'), `PLAIN=ok\nAPI=savenv('${payload}')\n`);
+    await fs.writeFile(path.join(projectDir, '.env'), `PLAIN=ok\nAPI=envsafe('${payload}')\n`);
 
     const target: NodeJS.ProcessEnv = {};
     const result = await load({
@@ -72,7 +72,7 @@ describe('savenv.load', () => {
     const good = encryptValue('hello', key, 'm');
     await fs.writeFile(
       path.join(projectDir, '.env'),
-      `OK=savenv('${good}')\nBAD=savenv('not-real-base64!@#')\n`,
+      `OK=envsafe('${good}')\nBAD=envsafe('not-real-base64!@#')\n`,
     );
     const warnings: string[] = [];
     const target: NodeJS.ProcessEnv = {};
@@ -89,14 +89,14 @@ describe('savenv.load', () => {
     expect(warnings.some((w) => /BAD/.test(w))).toBe(true);
   });
 
-  it('honours SAVENV_PROFILE env override', async () => {
+  it('honours envsafe_PROFILE env override', async () => {
     const { key } = await bootstrap('work', 'pp');
     const payload = encryptValue('value-from-work', key, 'm');
     // Pointer file points at "default" but env var redirects to "work".
-    await writeSavenvFile(projectDir, { profile: 'default' });
-    await fs.writeFile(path.join(projectDir, '.env'), `K=savenv('${payload}')\n`);
+    await writeenvsafeFile(projectDir, { profile: 'default' });
+    await fs.writeFile(path.join(projectDir, '.env'), `K=envsafe('${payload}')\n`);
 
-    const target: NodeJS.ProcessEnv = { SAVENV_PROFILE: 'work' };
+    const target: NodeJS.ProcessEnv = { envsafe_PROFILE: 'work' };
     const result = await load({
       cwd: projectDir,
       env: target,
@@ -108,7 +108,7 @@ describe('savenv.load', () => {
   });
 
   it('warns and skips encrypted entries when profile cannot be resolved', async () => {
-    await fs.writeFile(path.join(projectDir, '.env'), "API=savenv('garbage')\n");
+    await fs.writeFile(path.join(projectDir, '.env'), "API=envsafe('garbage')\n");
     const warnings: string[] = [];
     const target: NodeJS.ProcessEnv = {};
     const result = await load({
@@ -118,7 +118,7 @@ describe('savenv.load', () => {
     });
     expect(result.loaded).toEqual([]);
     expect(result.failed).toEqual(['API']);
-    expect(warnings.some((w) => /savenv init/.test(w) || /encrypted/.test(w))).toBe(true);
+    expect(warnings.some((w) => /envsafe init/.test(w) || /encrypted/.test(w))).toBe(true);
     expect(target.API).toBeUndefined();
   });
 });

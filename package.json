@@ -1,15 +1,12 @@
 {
-  "name": "savenv",
-  "version": "1.0.0",
+  "name": "envsafe",
+  "version": "0.0.0-development",
   "description": "Manage project environment variables with at-rest encryption of secret values.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/damianfabian/savenv.git"
-  },
+  "repository": { "type": "git", "url": "https://github.com/damianfabian/envsafe.git" },
   "bin": {
-    "savenv": "dist/cli.js"
+    "envsafe": "dist/cli.js"
   },
   "files": [
     "dist"

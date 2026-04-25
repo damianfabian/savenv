@@ -16,12 +16,12 @@ import {
   getProfile,
   listProfiles,
 } from '../profile-store';
-import { readSavenvFile, writeSavenvFile } from '../savenv-file';
+import { readenvsafeFile, writeenvsafeFile } from '../envsafe-file';
 
 const ENV_TEMPLATE =
   '# Environment Variables\n' +
   '# Add all your environment variables here, example\n' +
-  "# API_KEY=savenv('API_KEY')\n";
+  "# API_KEY=envsafe('API_KEY')\n";
 
 export interface Prompter {
   pickOrCreateProfile(existing: string[]): Promise<{ kind: 'pick'; name: string } | { kind: 'create' }>;
@@ -48,7 +48,7 @@ export interface InitResult {
 export async function runInit(options: InitOptions): Promise<InitResult> {
   const cwd = options.cwd ?? process.cwd();
   const log = options.log ?? (() => {});
-  const existingPointer = await readSavenvFile(cwd);
+  const existingPointer = await readenvsafeFile(cwd);
   if (existingPointer) {
     const ok = await options.prompter.confirmSwitchProfile(existingPointer.profile);
     if (!ok) {
@@ -64,7 +64,7 @@ export async function runInit(options: InitOptions): Promise<InitResult> {
   }
 
   const { profileName, createdProfile } = await chooseProfile(options);
-  await writeSavenvFile(cwd, { profile: profileName });
+  await writeenvsafeFile(cwd, { profile: profileName });
   log(`Active profile: ${profileName}`);
 
   const { added: gitignoreAdded } = await ensureGitignore(cwd);

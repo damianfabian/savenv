@@ -31,7 +31,7 @@ export interface BlankLine {
 export type EnvLine = PlainEntry | EncryptedEntry | CommentLine | BlankLine;
 export type Entry = PlainEntry | EncryptedEntry;
 
-const SAVENV_PATTERN = /^savenv\(\s*'([^']*)'\s*\)$/;
+const envsafe_PATTERN = /^envsafe\(\s*'([^']*)'\s*\)$/;
 const NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 export function parseEnv(content: string): EnvLine[] {
@@ -55,13 +55,13 @@ function parseLine(raw: string): EnvLine {
   if (!NAME_PATTERN.test(name)) return { type: 'comment', raw };
 
   const valueRaw = raw.slice(eqIndex + 1).trim();
-  const savenvMatch = SAVENV_PATTERN.exec(valueRaw);
-  if (savenvMatch) {
+  const envsafeMatch = envsafe_PATTERN.exec(valueRaw);
+  if (envsafeMatch) {
     return {
       type: 'entry',
       kind: 'encrypted',
       name,
-      payload: savenvMatch[1] ?? '',
+      payload: envsafeMatch[1] ?? '',
       raw,
     };
   }
@@ -98,7 +98,7 @@ function lineToString(line: EnvLine): string {
       if (line.kind === 'plain') {
         return `${line.name}=${line.value}`;
       }
-      return `${line.name}=savenv('${line.payload}')`;
+      return `${line.name}=envsafe('${line.payload}')`;
   }
 }
 
