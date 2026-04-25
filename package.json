@@ -1,0 +1,59 @@
+{
+  "name": "savenv",
+  "version": "0.0.0-development",
+  "description": "Manage project environment variables with at-rest encryption of secret values.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "savenv": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "pack:check": "npm pack --dry-run",
+    "prepack": "npm run clean && npm run build",
+    "prepare": "husky || true",
+    "prepublishOnly": "npm run clean && npm run build && npm test"
+  },
+  "keywords": [
+    "env",
+    "dotenv",
+    "secrets",
+    "encryption",
+    "cli",
+    "environment-variables"
+  ],
+  "author": "Fabian Jaramillo",
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.2",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@types/node": "^25.6.0",
+    "@vitest/coverage-v8": "^4.1.5",
+    "husky": "^9.1.7",
+    "semantic-release": "^24.2.9",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.10.1",
+    "commander": "^14.0.3"
+  }
+}
