@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/damianfabian/hidevars/compare/v1.0.0...v1.1.0) (2026-04-26)
+
+
+### Features
+
+* **adapters:** add Vite plugin (hidevars/vite) ([8a36887](https://github.com/damianfabian/hidevars/commit/8a368877969a1eac0990470fabae153d8acc5d3c))
+
 # 1.0.0 (2026-04-25)
 
 
