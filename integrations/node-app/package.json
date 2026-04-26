@@ -1,0 +1,13 @@
+{
+  "name": "@hidevars-integration/node-app",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Integration test fixture: a minimal Node.js consumer of hidevars.load().",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "hidevars": "*"
+  }
+}

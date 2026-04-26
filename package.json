@@ -25,6 +25,9 @@
   "files": [
     "dist"
   ],
+  "workspaces": [
+    "integrations/*"
+  ],
   "engines": {
     "node": ">=20"
   },
@@ -35,6 +38,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:integration": "npm run build && vitest run --config vitest.integration.config.ts",
     "pack:check": "npm pack --dry-run",
     "prepack": "npm run clean && npm run build",
     "prepare": "husky || true",

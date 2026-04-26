@@ -1,0 +1,18 @@
+{
+  "name": "@hidevars-integration/vite-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Integration test fixture: a minimal Vite consumer of the hidevars/vite plugin.",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "hidevars": "*"
+  },
+  "devDependencies": {
+    "vite": "^8.0.0"
+  }
+}
